@@ -1,0 +1,26 @@
+﻿@page "/"
+@inject NekoClient nekoClient
+
+<PageTitle>Рынок</PageTitle>
+
+@if (nekoClient.GetNekos().Length == 0)
+{
+	<h2>Товаров больше не осталось, Господин</h2>
+	<img src="/Images/pfelis/pf2.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+}
+else
+{
+	@foreach(NekoPost nekoPost in nekoClient.GetNekos())
+	{
+		<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh;">
+			<img class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ"/>
+			<div class="d-flex justify-content-between">
+				<button class="btn btn-outline-secondary btn-block">@nekoPost.Price₽</button>
+				<button class="btn btn-outline-secondary btn-block">@nekoPost.Name</button>
+			</div>
+			<a href="/nekopage/@nekoPost.Id" class="btn btn-outline-secondary btn-block">
+				 Подробности...
+			</a>
+		</div>
+	}	
+}

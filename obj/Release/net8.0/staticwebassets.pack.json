@@ -1,0 +1,65 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\obj\\Release\\net8.0\\scopedcss\\projectbundle\\NekoSiteTest.bundle.scp.css",
+      "PackagePath": "staticwebassets\\NekoSiteTest.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\felix.jpg",
+      "PackagePath": "staticwebassets\\Images\\felix.jpg"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\pfelis\\pf0.jpg",
+      "PackagePath": "staticwebassets\\Images\\pfelis\\pf0.jpg"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\pfelis\\pf1.jpg",
+      "PackagePath": "staticwebassets\\Images\\pfelis\\pf1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\pfelis\\pf2.jpg",
+      "PackagePath": "staticwebassets\\Images\\pfelis\\pf2.jpg"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\pfelis\\pf3.jpg",
+      "PackagePath": "staticwebassets\\Images\\pfelis\\pf3.jpg"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\Images\\pfelis\\pf4.png",
+      "PackagePath": "staticwebassets\\Images\\pfelis\\pf4.png"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\user\\Documents\\kptyata#\\NekoSiteTest\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.NekoSiteTest.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.build.NekoSiteTest.props",
+      "PackagePath": "build\\NekoSiteTest.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.NekoSiteTest.props",
+      "PackagePath": "buildMultiTargeting\\NekoSiteTest.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildTransitive.NekoSiteTest.props",
+      "PackagePath": "buildTransitive\\NekoSiteTest.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

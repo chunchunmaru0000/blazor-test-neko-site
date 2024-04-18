@@ -34,14 +34,30 @@ else
 	{
 		HttpClient client = new HttpClient();
 		string url = "https://localhost:7778/Neko/GetNekos";
+		HttpResponseMessage response;
 
-		HttpResponseMessage response = await client.GetAsync(url);
-
-		if (response.IsSuccessStatusCode)
+		try
 		{
-			string jsonRes = await response.Content.ReadAsStringAsync();
-			nekoPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
-			nekoClient.GottenPosts = nekoPosts;
+			response = await client.GetAsync(url);
+
+			if (response.IsSuccessStatusCode)
+			{
+				string jsonRes = await response.Content.ReadAsStringAsync();
+				nekoPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
+				nekoClient.GottenPosts = nekoPosts;
+			}
+		}
+		catch
+		{
+			url = "http://localhost:5555/Neko/GetNekos";
+			response = await client.GetAsync(url);
+
+			if (response.IsSuccessStatusCode)
+			{
+				string jsonRes = await response.Content.ReadAsStringAsync();
+				nekoPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
+				nekoClient.GottenPosts = nekoPosts;
+			}
 		}
 	}
 }

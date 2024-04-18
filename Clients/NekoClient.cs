@@ -56,8 +56,9 @@ namespace NekoSiteTest.Clients
 					]
 			},
 		};
+		public List<NekoPost> GottenPosts = null;
 
-        public NekoPost[] GetNekos() => [.. Posts];
+        public NekoPost[] GetNekos() => GottenPosts is null ? [.. Posts] : [.. GottenPosts];
 
         public void AddPost(NekoPost post) => Posts.Add(post);
 

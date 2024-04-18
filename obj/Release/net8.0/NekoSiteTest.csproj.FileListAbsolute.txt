@@ -27,3 +27,4 @@ C:\Users\user\Documents\kptyata#\NekoSiteTest\obj\Release\net8.0\refint\NekoSite
 C:\Users\user\Documents\kptyata#\NekoSiteTest\obj\Release\net8.0\NekoSiteTest.pdb
 C:\Users\user\Documents\kptyata#\NekoSiteTest\obj\Release\net8.0\NekoSiteTest.genruntimeconfig.cache
 C:\Users\user\Documents\kptyata#\NekoSiteTest\obj\Release\net8.0\ref\NekoSiteTest.dll
+C:\Users\user\Documents\kptyata#\NekoSiteTest\obj\Release\net8.0\NekoSiteTest.sourcelink.json

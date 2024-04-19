@@ -7,7 +7,7 @@
 @if (nekoClient.GetNekos().Length == 0)
 {
 	<h2>Товаров больше не осталось, Господин</h2>
-	<img src="/Images/pfelis/pf2.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+	<img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Breadindia.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" style="height: 50vh;" />
 }
 else
 {
@@ -27,37 +27,40 @@ else
 }
 
 @code{
-	private List<NekoPost> nekoPosts = new List<NekoPost>();
-	private bool got = false;
+	private NekoPost[] nekoPosts = [];
 
 	protected override async Task OnInitializedAsync()
 	{
-		HttpClient client = new HttpClient();
-		string url = "https://localhost:7778/Neko/GetNekos";
-		HttpResponseMessage response;
-
-		try
+		if (nekoClient.GottenPosts is null)
 		{
-			response = await client.GetAsync(url);
+			HttpClient client = new HttpClient();
+			HttpResponseMessage response;
 
-			if (response.IsSuccessStatusCode)
+			string[] urls = new string[] 
 			{
-				string jsonRes = await response.Content.ReadAsStringAsync();
-				nekoPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
-				nekoClient.GottenPosts = nekoPosts;
+				"https://localhost:7778/Neko/GetNekos",
+				"http://localhost:5555/Neko/GetNekos",
+				"http://localhost:5000/Neko/GetNekos"
+			};
+
+			foreach(string url in urls)
+			{
+				try
+				{
+					response = await client.GetAsync(url);
+
+					if (response.IsSuccessStatusCode)
+					{
+						string jsonRes = await response.Content.ReadAsStringAsync();
+						nekoClient.GottenPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
+						nekoClient.SetPosts(nekoClient.GottenPosts);
+						break;
+					}
+				}
+				catch { /* continue */ }
 			}
 		}
-		catch
-		{
-			url = "http://localhost:5555/Neko/GetNekos";
-			response = await client.GetAsync(url);
 
-			if (response.IsSuccessStatusCode)
-			{
-				string jsonRes = await response.Content.ReadAsStringAsync();
-				nekoPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
-				nekoClient.GottenPosts = nekoPosts;
-			}
-		}
+		nekoPosts = nekoClient.GetNekos();
 	}
 }

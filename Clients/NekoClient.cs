@@ -4,6 +4,7 @@ namespace NekoSiteTest.Clients
 {
     public class NekoClient
     {
+		public List<NekoPost>? GottenPosts = null;
 		private List<NekoPost> Posts = new List<NekoPost>()
 		{
 			new()
@@ -56,9 +57,10 @@ namespace NekoSiteTest.Clients
 					]
 			},
 		};
-		public List<NekoPost> GottenPosts = null;
 
-        public NekoPost[] GetNekos() => GottenPosts is null ? [.. Posts] : [.. GottenPosts];
+        public NekoPost[] GetNekos() => [.. Posts];
+
+		public void SetPosts(List<NekoPost> posts) => Posts = posts;
 
         public void AddPost(NekoPost post) => Posts.Add(post);
 

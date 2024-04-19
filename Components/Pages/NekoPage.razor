@@ -10,7 +10,7 @@
 {
 	<h2 class="alert-heading">Ошибка!</h2>
 	<h3 class="alert alert-danger" role="alert">Данной страницы не существует</h3>
-	<img src="/Images/pfelis/pf2.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+	<img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Breadindia.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" style="height: 50vh;" />
 }
 else
 {
@@ -57,7 +57,7 @@ else
 	[Parameter]
 	public required string pageId { get; set; }
 
-	private NekoPost nekoPost = null;
+	private NekoPost? nekoPost = null;
 
 	protected override void OnInitialized()
 	{
@@ -65,8 +65,8 @@ else
 	}
 
 	private void Buy() 
-	{ 
-		nekoClient.DeletePost(nekoPost.Id);
+	{
+		nekoClient.DeletePost(nekoPost!.Id);
 		nav.NavigateTo("/");
 	}
 }

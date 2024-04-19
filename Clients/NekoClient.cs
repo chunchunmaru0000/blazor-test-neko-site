@@ -65,5 +65,12 @@ namespace NekoSiteTest.Clients
         public void AddPost(NekoPost post) => Posts.Add(post);
 
         public void DeletePost(int id) => Posts.Remove(Posts.Single(p => p.Id == id));
-    }
+
+		// cart
+		public List<NekoPost> Cart = new List<NekoPost>();
+
+		public void AddToCart(NekoPost post) => Cart.Add(post);
+
+		public NekoPost[] GetCart() => [.. Cart];
+	}
 }

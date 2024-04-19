@@ -1,0 +1,17 @@
+﻿@page "/cart"
+
+@inject NekoClient nekoClient
+@rendermode InteractiveServer
+
+
+
+@code {
+	private NekoPost[] inCart = [];
+
+	protected override void OnInitialized()
+	{
+		inCart = nekoClient.GetCart();
+	}
+
+
+}

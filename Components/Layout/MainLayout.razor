@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject WalletClient walletClient
 
 <div class="page">
     <div class="sidebar">
@@ -7,7 +8,7 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="https://www.banki.ru/microloans/catalogue/zaym_na_kartu/" target="_blank">Счёт: @walletClient.Account₽</a>
         </div>
 
         <article class="content px-4">

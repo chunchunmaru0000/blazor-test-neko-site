@@ -3,6 +3,8 @@
 
 @inject NekoClient nekoClient
 @inject NavigationManager nav
+@inject WalletClient walletClient
+
 
 <PageTitle>Подробности</PageTitle>
 
@@ -15,29 +17,34 @@
 else
 {
 	<div class="card mb-4 mh-50 box-shadow">
-		<strong class="d-inline-block col-md-12 text-primary">@nekoPost.Name</strong>
-		<div style="flex: 1;">
-			<img class="card-body d-flex flex-column align-items-start" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" style="width: 50vh;"/>
-		</div>
-
-		<div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
-			<div class="card-body d-flex flex-column align-items-end">
-				<button class="btn btn-outline-secondary btn-lg btn-block" @onclick="Buy">КУПИТЬ</button>
-				<a href="/" class="btn btn-outline-secondary btn-block">Назад</a>
-				<a href="/nekopage/@(nekoClient.GetNekos().Length <= nekoPost.Id + 1 ? 0 : nekoPost.Id + 1)" class="btn btn-outline-secondary btn-block">Следующая</a>
+		<div class="card-header" style="display: flex; flex-direction: column;">
+			<div style="display: flex; justify-content:start">
+				<img style="height: 50vh; padding: 1vh" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+				<div style="display: flex; flex-direction: column; justify-content: space-between">
+					<button 
+						style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
+						class="btn btn-outline-secondary" 
+						@onclick="Buy">КУПИТЬ</button>
+					<a style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
+					   class="btn btn-outline-secondary" 
+						href="/">Назад</a>
+					<a 
+						style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
+					    class="btn btn-outline-secondary" 
+						href="/nekopage/@(nekoClient.GetNekos().Length <= nekoPost.Id + 1 ? 0 : nekoPost.Id + 1)">Следующая</a>
+				</div>
 			</div>
+			<strong class="text-primary" style="margin: 2vh">@nekoPost.Name</strong>
 		</div>
 
 		<div class="card-body">
+			<p>Цена: @nekoPost.Price₽</p>
 			<ul>
 				@foreach(var spec in nekoPost.Specifications)
 				{
 					<li>@spec.Key - @spec.Value</li>
 				}
 			</ul>
-		</div>
-
-		<div class="card-body">
 			<p>@nekoPost.Description</p>
 		</div>
 
@@ -66,6 +73,8 @@ else
 
 	private void Buy() 
 	{
+		walletClient.Account -= nekoPost!.Price;
+		nekoClient.AddToCart(nekoPost);
 		nekoClient.DeletePost(nekoPost!.Id);
 		nav.NavigateTo("/");
 	}

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.Text.Json
 @inject NekoClient nekoClient
+@rendermode InteractiveServer
 
 <PageTitle>Рынок</PageTitle>
 
@@ -11,19 +12,19 @@
 }
 else
 {
-	@foreach (NekoPost nekoPost in nekoPosts)
-	{
-		<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh;">
-			<img class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ"/>
-				<button class="cart-body btn btn-outline-secondary btn-block">@nekoPost.Price₽</button>
-				<button class="cart-body btn btn-outline-secondary btn-block">@nekoPost.Name</button>
-			<div class="d-flex justify-content-between">
+	<div style="display: flex; flex-wrap:wrap">
+		@foreach (NekoPost nekoPost in nekoPosts)
+		{
+			<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh;">
+				<img style="width: 40vh; height: 40vh; object-fit:contain" class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+				<a style="margin: 1vh; font-size: 3vh; text-decoration: none;" class="link-info card-body" href="/nekopage/@nekoPost.Id">@nekoPost.Name</a>
+				<div style="display: flex; justify-content: space-between" class="card-footer">
+					<h5 style="margin: 1vh" class="text">@nekoPost.Price₽</h5>
+					<button style="margin: 1vh" @onclick="()=>AddCart(nekoPost)">@(nekoClient.GetLiked().Any(n => n.Id == nekoPost.Id) ? "❤️" : "🤍")</button>
+				</div>
 			</div>
-			<a href="/nekopage/@nekoPost.Id" class="btn btn-outline-secondary btn-block">
-				 Подробности...
-			</a>
-		</div>
-	}	
+		}	
+	</div>
 }
 
 @code{
@@ -62,5 +63,13 @@ else
 		}
 
 		nekoPosts = nekoClient.GetNekos();
+	}
+
+	private void AddCart(NekoPost neko)
+	{
+		if (nekoClient.GetLiked().Contains(neko))
+			nekoClient.DeleteLiked(neko.Id);
+		else
+			nekoClient.AddToLiked(neko);
 	}
 }

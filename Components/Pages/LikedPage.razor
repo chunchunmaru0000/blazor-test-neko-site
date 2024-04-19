@@ -1,7 +1,6 @@
-﻿@page "/cart"
+﻿@page "/liked"
 
 @inject NekoClient nekoClient
-@inject WalletClient walletClient
 @rendermode InteractiveServer
 
 @if (nekoPosts.Length == 0)
@@ -21,7 +20,6 @@ else
 					<h5 style="margin: 1vh" class="text">@nekoPost.Price₽</h5>
 					<button style="margin: 1vh" @onclick="()=>AddCart(nekoPost)">@(nekoClient.GetLiked().Any(n => n.Id == nekoPost.Id) ? "❤️" : "🤍")</button>
 				</div>
-				<button class="card-footer" style="margin: 1vh" @onclick="()=>Restore(nekoPost)">Убрать из корзины</button>
 			</div>
 		}
 	</div>
@@ -32,22 +30,12 @@ else
 
 	protected override void OnInitialized()
 	{
-		nekoPosts = nekoClient.GetCart();
+		nekoPosts = nekoClient.GetLiked();
 	}
 
 	private void AddCart(NekoPost neko)
 	{
-		if (nekoClient.GetLiked().Contains(neko))
-			nekoClient.DeleteLiked(neko.Id);
-		else
-			nekoClient.AddToLiked(neko);
-	}
-
-	private void Restore(NekoPost neko)
-	{
-		nekoClient.AddPost(neko);
-		walletClient.Account += neko.Price;
+		nekoClient.DeleteLiked(neko.Id);
 		nekoPosts = nekoPosts.Where(n => n.Id != neko.Id).ToArray();
-		nekoClient.DeleteCart(neko.Id);
 	}
 }

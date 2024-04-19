@@ -66,11 +66,22 @@ namespace NekoSiteTest.Clients
 
         public void DeletePost(int id) => Posts.Remove(Posts.Single(p => p.Id == id));
 
-		// cart
+		// Cart
 		public List<NekoPost> Cart = new List<NekoPost>();
 
 		public void AddToCart(NekoPost post) => Cart.Add(post);
 
 		public NekoPost[] GetCart() => [.. Cart];
+
+		public void DeleteCart(int id) => Cart.Remove(Cart.Single(p => p.Id == id));
+
+		// Liked
+		public List<NekoPost> Liked = new List<NekoPost>();
+
+		public void AddToLiked(NekoPost post) => Liked.Add(post);
+
+		public NekoPost[] GetLiked() => [.. Liked];
+
+		public void DeleteLiked(int id) => Liked.Remove(Liked.Single(p => p.Id == id));
 	}
 }

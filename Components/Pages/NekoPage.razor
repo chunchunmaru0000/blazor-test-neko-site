@@ -22,14 +22,15 @@ else
 				<img style="height: 50vh; padding: 1vh" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
 				<div style="display: flex; flex-direction: column; justify-content: space-between">
 					<button 
-						style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
+						style="height: 12vh; width: 20vw; margin: 1vh; margin-left: 4vw; font-size: 4vh; line-height: 10vh;"
 						class="btn btn-outline-secondary" 
 						@onclick="Buy">КУПИТЬ</button>
-					<a style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
-					   class="btn btn-outline-secondary" 
+					<a  
+						style="height: 12vh; width: 20vw; margin: 1vh; margin-left: 4vw; font-size: 4vh; line-height: 10vh;"
+					    class="btn btn-outline-secondary" 
 						href="/">Назад</a>
 					<a 
-						style="height: 12vh; width: 26vh; margin: 1vh; margin-left: 4vh; font-size: 4vh; line-height: 10vh;"
+						style="height: 12vh; width: 20vw; margin: 1vh; margin-left: 4vw; font-size: 4vh; line-height: 10vh;"
 					    class="btn btn-outline-secondary" 
 						href="/nekopage/@(nekoClient.GetNekos().Length <= nekoPost.Id + 1 ? 0 : nekoPost.Id + 1)">Следом</a>
 				</div>

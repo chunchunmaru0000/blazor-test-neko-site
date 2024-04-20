@@ -1,0 +1,272 @@
+﻿@page "/edit/{nekoId}"
+
+@rendermode InteractiveServer
+@inject NekoClient nekoClient
+@inject NavigationManager nav
+@inject IJSRuntime jsRun
+
+<PageTitle>Редактирование</PageTitle>
+
+@if (neko is null)
+{
+	<h2 class="alert-heading">Ошибка!</h2>
+	<h3 class="alert alert-danger" role="alert">Данной страницы не существует</h3>
+	<img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Breadindia.jpg" alt="ЭЭЭЭЭЭЭЭЭЭЭ" style="height: 50vh;" />
+}
+else
+{
+	<div class="mb-3">
+		<label for="name" class="form-label">Имя</label>
+		<InputText id="name" @bind-Value="name" class="form-control"/>
+	</div>
+
+	<div class="mb-3">
+		<label for="price" class="form-label">Цена</label>
+		<InputNumber id="price" @bind-Value="price" class="form-control"></InputNumber>
+	</div>
+
+	<div class="mb-3">
+		<label for="desc" class="form-label">Описание</label>
+		<InputText id="desc" @bind-Value="desc" class="form-control"></InputText>
+	</div>
+
+	<div class="mb-3">
+		<div style="display: flex;">
+			<label class="form-label">Характеристики</label>
+			<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddSpec(specKeys!.Count)">+</button>
+		</div>
+		@for(int i = 0; i < specKeys!.Count; i++)
+		{
+			int index = i;
+			<div style="display: flex;">
+				<InputText id="@specKeys[index]" @bind-Value="specKeys[index]" class="form-control mb-1"></InputText>
+				<InputText id="@specValues![index]" @bind-Value="specValues![index]" class="form-control mb-1"></InputText>
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteSpec(index)">-</button>
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddSpec(index)">+</button>
+			</div>
+		}
+	</div>
+
+	<div class="mb-3">
+		<div style="display: flex;">
+			<label class="form-label">Изображения-ссылки</label>
+			<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddImg(images!.Count)">+</button>
+		</div>
+		@for (int i = 0; i < images!.Count; i++)
+		{
+			int im = i;
+			<div style="display: flex;">
+				<InputText id="@images[im]" @bind-Value="images[im]" class="form-control mb-1"></InputText>
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteImg(im)">-</button>
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddImg(im)">+</button>
+			</div>
+		}
+	</div>
+
+	<div class="mb-3">
+		<div style="display: flex;">
+			<label class="form-label">Изображения</label>
+			<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddBlob(blobs!.Count)">+</button>
+		</div>
+		@for (int i = 0; i < blobs!.Count; i++)
+		{
+			int ib = i;
+			<div style="display: flex;">
+				<InputFile id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1"></InputFile>
+				<img style="width: 5vw; height: 5vh;" class="form-control mb-1" src="data:image/octet-stream;base64,@Convert.ToBase64String(blobs[ib])" />
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteBlob(ib)">-</button>
+				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddBlob(ib)">+</button>
+			</div>
+		}
+	</div>
+
+	<button class="form-control btn-primary" @onclick="EditNeko">Сохранить изменения</button>
+}
+
+@code {
+	[Parameter]
+	public required string nekoId { get; set; }
+
+	private NekoPost? neko { get; set; }
+	private string? name { get; set; } 
+	private decimal? price { get; set; } 
+	private string? desc { get; set; } 
+	private List<string>? specKeys { get; set; }
+	private List<string>? specValues { get; set; }
+	private List<string>? images { get; set; }
+	private List<byte[]>? blobs { get; set; }
+
+	protected override void OnInitialized()
+	{
+		int id = Convert.ToInt32(nekoId);
+		neko = nekoClient.GetNekos().SingleOrDefault(n => n.Id == id);
+
+		if (neko is null == false)
+		{
+			neko = new()
+				{
+					Id = neko!.Id,
+					Name = neko.Name,
+					Price = neko.Price,
+					Image = neko.Image,
+					Description = neko.Description,
+					Specifications = new Dictionary<string, string>(neko.Specifications),
+					Photos = [.. neko.Photos]
+				};
+
+			name = neko.Name;
+			price = neko.Price;
+			desc = neko.Description;
+			specKeys = neko.Specifications.Select(s => s.Key).ToList();
+			specValues = neko.Specifications.Select(s => s.Value).ToList();
+
+			images = new List<string>();
+			blobs = new List<byte[]>();
+
+			foreach (string img in neko.Photos)
+			{
+				if (img.StartsWith("http"))
+					images.Add(img);
+				else
+					blobs.Add(Convert.FromBase64String(string.Join("", img.Split(',').Skip(1))));
+			}
+		}
+	}
+
+	private void DeleteSpec(int id)
+	{
+		specKeys!.RemoveAt(id);
+		specValues!.RemoveAt(id);
+	}
+
+	private void AddSpec(int id)
+	{
+		if (id == specKeys!.Count)
+		{
+			specKeys.Add("");
+			specValues!.Add("");
+		}
+		else
+		{
+			string[] after = specKeys.Skip(id + 1).Take(specKeys.Count - id - 1).ToArray();
+			specKeys = specKeys.Take(id + 1).ToList();
+			specKeys.Add("");
+			specKeys.AddRange(after);
+
+			after = specValues!.Skip(id + 1).Take(specValues!.Count - id - 1).ToArray();
+			specValues = specValues.Take(id + 1).ToList();
+			specValues.Add("");
+			specValues.AddRange(after);
+		}
+	}
+
+	private void DeleteImg(int id)
+	{
+		images!.RemoveAt(id);
+	}
+
+	private void AddImg(int id)
+	{
+		if (id == images!.Count)
+		{
+			images.Add("");
+		}
+		else
+		{
+			string[] after = images.Skip(id + 1).Take(images.Count - id - 1).ToArray();
+			images = images.Take(id + 1).ToList();
+			images.Add("");
+			images.AddRange(after);
+		}
+	}
+
+	private void DeleteBlob(int id)
+	{
+		blobs!.RemoveAt(id);
+	}
+
+	private void AddBlob(int id)
+	{
+		if (id == blobs!.Count)
+		{
+			blobs.Add([]);
+		}
+		else
+		{
+			List<byte[]> after = blobs.Skip(id + 1).Take(blobs.Count - id - 1).ToList();
+			blobs = blobs.Take(id + 1).ToList();
+			blobs.Add([]);
+			blobs.AddRange(after);
+		}
+	}
+
+	private void CraftNeko()
+	{
+		if (name == "")
+			return;
+		// simple
+		neko!.Name = name!;
+		neko.Price = Convert.ToDecimal(price ?? 0);
+		neko.Description = desc ?? "";
+		// image
+		if (images!.Count == 0)
+			if (blobs!.Count == 0)
+				neko.Image = "";
+			else
+				neko.Image = $"data:image/octet-stream;base64,{Convert.ToBase64String(blobs[0])}";
+		else
+			neko.Image = images[0];
+		// specs
+		neko.Specifications = Enumerable.Range(0, specKeys!.Count).
+			Where(e => !specKeys[e].All(c => char.IsWhiteSpace(c) && !specValues![e].All(c => char.IsWhiteSpace(c)))).
+			Select(e => new KeyValuePair<string, string>(specKeys[e], specValues![e])).
+			ToDictionary(kv => kv.Key, kv => kv.Value);
+		// photos
+		images.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
+		neko.Photos = images.Where(i => i != "" && i != "data:image/octet-stream;base64,").ToArray();
+	}
+
+	private async Task HandleFileUpload(InputFileChangeEventArgs e)
+	{
+		var file = e.File;
+
+		using var stream = file.OpenReadStream();
+		using var memoryStream = new MemoryStream();
+		await stream.CopyToAsync(memoryStream);
+		memoryStream.Close();
+
+		byte[] fileBytes = memoryStream.ToArray() ?? [];
+	}
+
+	private async void EditNeko()
+	{
+		HttpClient client = new HttpClient();
+		HttpResponseMessage response = new HttpResponseMessage();
+		CraftNeko();
+
+		string[] urls = new string[]
+		{
+			"https://localhost:7778/Neko/GetNekos",
+			"http://localhost:5555/Neko/GetNekos",
+			"http://localhost:5000/Neko/GetNekos"
+		};
+
+		foreach (string url in urls)
+		{
+			try
+			{
+				response = await client.PostAsJsonAsync(url, neko);
+				break;
+			}
+			catch { /* continue */ }
+		}
+
+		if (response.IsSuccessStatusCode)
+		{
+			nekoClient.ReplaceNeko(neko!);
+			nav.NavigateTo("/cart");
+		}
+		else
+			await jsRun.InvokeVoidAsync("alert", "НЕ УДАЛАСЬ ПОПЫТКА ИЗМЕНЕНИЯ ТОВАРА");
+	}
+}

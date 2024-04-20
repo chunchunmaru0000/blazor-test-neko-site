@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.JSInterop;
 using NekoSiteTest.Clients;
 using NekoSiteTest.Components;
 

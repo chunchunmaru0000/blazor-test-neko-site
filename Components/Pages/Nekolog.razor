@@ -15,7 +15,7 @@ else
 	<div style="display: flex; flex-wrap:wrap">
 		@foreach (NekoPost nekoPost in nekoPosts)
 		{
-			<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh;">
+			<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh; margin: 2vh">
 				<img style="width: 40vh; height: 40vh; object-fit:contain" class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
 				<a style="margin: 1vh; font-size: 3vh; text-decoration: none;" class="link-info card-body" href="/nekopage/@nekoPost.Id">@nekoPost.Name</a>
 				<div style="display: flex; justify-content: space-between" class="card-footer">

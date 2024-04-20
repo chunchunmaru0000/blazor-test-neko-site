@@ -66,6 +66,16 @@ namespace NekoSiteTest.Clients
 
         public void DeletePost(int id) => Posts.Remove(Posts.Single(p => p.Id == id));
 
+		public void ReplaceNeko(NekoPost neko)
+		{
+			for(int i = 0; i < Posts.Count; i++)
+				if (Posts[i].Id == neko.Id)
+				{
+					Posts[i] = neko;
+					break;
+				}
+		}
+
 		// Cart
 		public List<NekoPost> Cart = new List<NekoPost>();
 

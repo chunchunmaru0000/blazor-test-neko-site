@@ -1,6 +1,7 @@
 ﻿@page "/edit/{nekoId}"
 
 @rendermode InteractiveServer
+@using System.Text.Json
 @inject NekoClient nekoClient
 @inject NavigationManager nav
 @inject IJSRuntime jsRun
@@ -23,6 +24,11 @@ else
 	<div class="mb-3">
 		<label for="price" class="form-label">Цена</label>
 		<InputNumber id="price" @bind-Value="price" class="form-control"></InputNumber>
+	</div>
+
+	<div class="mb-3">
+		<label for="image" class="form-label">Изображение</label>
+		<InputText id="image" @bind-Value="image" class="form-control" />
 	</div>
 
 	<div class="mb-3">
@@ -72,7 +78,7 @@ else
 		{
 			int ib = i;
 			<div style="display: flex;">
-				<InputFile id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1"></InputFile>
+				<InputFile id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1" OnChange="HandleFileUpload"></InputFile>
 				<img style="width: 5vw; height: 5vh; object-fit: contain" class="form-control mb-1" src="data:image/octet-stream;base64,@Convert.ToBase64String(blobs[ib])" />
 				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteBlob(ib)">-</button>
 				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddBlob(ib)">+</button>
@@ -89,6 +95,7 @@ else
 
 	private NekoPost? neko { get; set; }
 	private string? name { get; set; } 
+	private string? image { get; set; }
 	private decimal? price { get; set; } 
 	private string? desc { get; set; } 
 	private List<string>? specKeys { get; set; }
@@ -116,6 +123,7 @@ else
 
 			name = neko.Name;
 			price = neko.Price;
+			image = neko.Image.StartsWith("http") ? neko.Image : "любое";
 			desc = neko.Description;
 			specKeys = neko.Specifications.Select(s => s.Key).ToList();
 			specValues = neko.Specifications.Select(s => s.Value).ToList();
@@ -207,19 +215,16 @@ else
 		// simple
 		neko!.Name = name!;
 		neko.Price = Convert.ToDecimal(price ?? 0);
-		neko.Description = desc ?? "";
+		neko.Description = desc!;
 		// image
-		if (images!.Count == 0)
-			neko.Image = "любое";
-		else
-			neko.Image = images[0];
+		neko.Image = image!;
 		// specs
 		neko.Specifications = Enumerable.Range(0, specKeys!.Count).
 			Where(e => !specKeys[e].All(c => char.IsWhiteSpace(c) && !specValues![e].All(c => char.IsWhiteSpace(c)))).
 			Select(e => new KeyValuePair<string, string>(specKeys[e], specValues![e])).
 			ToDictionary(kv => kv.Key, kv => kv.Value);
 		// photos
-		images.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
+		images!.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
 		neko.Photos = images.Where(i => i != "" && i != "data:image/octet-stream;base64,").ToArray();
 	}
 
@@ -227,12 +232,14 @@ else
 	{
 		var file = e.File;
 
-		using var stream = file.OpenReadStream();
-		using var memoryStream = new MemoryStream();
+		var stream = file.OpenReadStream();
+		var memoryStream = new MemoryStream();
 		await stream.CopyToAsync(memoryStream);
-		memoryStream.Close();
 
 		byte[] fileBytes = memoryStream.ToArray() ?? [];
+		
+		int i = blobs!.IndexOf([]);
+		blobs[i] = fileBytes;
 	}
 
 	private async void EditNeko()
@@ -243,25 +250,28 @@ else
 
 		string[] urls = new string[]
 		{
-			"https://localhost:7778/Neko/GetNekos",
-			"http://localhost:5555/Neko/GetNekos",
-			"http://localhost:5000/Neko/GetNekos"
+			"https://localhost:7778/Neko/EditNeko",
+			"http://localhost:5555/Neko/EditNeko",
+			"http://localhost:5000/Neko/EditNeko"
 		};
 
 		foreach (string url in urls)
 		{
 			try
 			{
-				response = await client.PostAsJsonAsync(url, neko);
+				response = await client.PatchAsJsonAsync(url, neko);
 				break;
 			}
 			catch { /* continue */ }
 		}
 
-		if (response.IsSuccessStatusCode)
+		if (response.IsSuccessStatusCode && (JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync()) ?? "") == "УДАЧНО ОБНОВЛЕННО")
 		{
+			if (neko!.Image.Trim().ToLower() == "любое")
+				neko.Image = blobs!.Count == 0 ? neko.Image : $"data:image/octet-stream;base64,{Convert.ToBase64String(blobs[0])}";
 			nekoClient.ReplaceNeko(neko!);
-			nav.NavigateTo("/cart");
+			await jsRun.InvokeVoidAsync("alert", "ИЗМЕНЕНИЕ ПРОШЛО УДАЧНО");
+			//nav.NavigateTo("/");
 		}
 		else
 			await jsRun.InvokeVoidAsync("alert", "НЕ УДАЛАСЬ ПОПЫТКА ИЗМЕНЕНИЯ ТОВАРА");

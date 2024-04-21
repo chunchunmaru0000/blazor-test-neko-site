@@ -1,9 +1,386 @@
 ﻿@page "/create"
 
+@rendermode InteractiveServer
+@using System.Text.Json
+@inject CreateClient createClient
+@inject NekoClient nekoClient
+@inject NavigationManager nav
+@inject IJSRuntime jsRun
+
 <PageTitle>Продажа</PageTitle>
 
-<h3>CreateNekoPage</h3>
+<div class="mb-3">
+	<label for="name" class="form-label">Имя</label>
+	<InputText id="name" @bind-Value="name" class="form-control" />
+</div>
+
+<div class="mb-3">
+	<label for="price" class="form-label">Цена</label>
+	<InputNumber id="price" @bind-Value="price" class="form-control"></InputNumber>
+</div>
+
+<div class="mb-3">
+	<label for="image" class="form-label">Изображение</label>
+	<InputText id="image" @bind-Value="image" class="form-control" />
+</div>
+
+<div class="mb-3">
+	<label for="desc" class="form-label">Описание</label>
+	<InputText id="desc" @bind-Value="desc" class="form-control"></InputText>
+</div>
+
+<div class="mb-3">
+	<div style="display: flex;">
+		<label class="form-label">Характеристики</label>
+		<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddSpec(specKeys!.Count)">+</button>
+	</div>
+	@for (int i = 0; i < specKeys!.Count; i++)
+	{
+		int index = i;
+		<div style="display: flex;">
+			<InputText id="@specKeys[index]" @bind-Value="specKeys[index]" class="form-control mb-1"></InputText>
+			<InputText id="@specValues![index]" @bind-Value="specValues![index]" class="form-control mb-1"></InputText>
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteSpec(index)">-</button>
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddSpec(index)">+</button>
+			<div>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control" @onclick="()=>UpSpec(index)">↑</button>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DownSpec(index)">↓</button>
+			</div>
+		</div>
+	}
+</div>
+
+<div class="mb-3">
+	<div style="display: flex;">
+		<label class="form-label">Изображения-ссылки</label>
+		<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddImg(images!.Count)">+</button>
+	</div>
+	@for (int i = 0; i < images!.Count; i++)
+	{
+		int im = i;
+		<div style="display: flex;">
+			<InputText id="@images[im]" @bind-Value="images[im]" class="form-control mb-1"></InputText>
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteImg(im)">-</button>
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddImg(im)">+</button>
+			<div>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control" @onclick="()=>UpImg(im)">↑</button>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DownImg(im)">↓</button>
+			</div>
+		</div>
+	}
+</div>
+
+<div class="mb-3">
+	<div style="display: flex;">
+		<label class="form-label">Изображения</label>
+		<button style="width: 3vw; font-size: 3vh; height: 3vh; line-height: 1vh; margin-left: 1vw" class="form-control ml-1" @onclick="()=>AddBlob(blobs!.Count)">+</button>
+	</div>
+	@for (int i = 0; i < blobs!.Count; i++)
+	{
+		int ib = i;
+		<div style="display: flex;">
+			<InputFile style="font-size: 3vh" id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1" OnChange="HandleFileUpload"></InputFile>
+			<img style="width: 5vw; height: 6vh; object-fit: contain" class="form-control mb-1" src="data:image/octet-stream;base64,@Convert.ToBase64String(blobs[ib])" />
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteBlob(ib)">-</button>
+			<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddBlob(ib)">+</button>
+			<div>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control" @onclick="()=>UpBlob(ib)">↑</button>
+				<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DownBlob(ib)">↓</button>
+			</div>
+		</div>
+	}
+</div>
+
+<button class="form-control btn-primary mb-1" @onclick="CraftNeko">Сохранить изменения</button>
+<button class="form-control btn-primary" @onclick="Sell">Продать</button>
 
 @code {
+	[Parameter]
+	public required string nekoId { get; set; }
 
+	private NekoPost? neko { get; set; }
+	private string? name { get; set; }
+	private string? image { get; set; }
+	private decimal? price { get; set; }
+	private string? desc { get; set; }
+	private List<string>? specKeys { get; set; }
+	private List<string>? specValues { get; set; }
+	private List<string>? images { get; set; }
+	private List<byte[]>? blobs { get; set; }
+
+	protected override void OnInitialized()
+	{
+		neko = createClient.Neko;
+
+		name = neko.Name;
+		price = neko.Price;
+		image = neko.Image.StartsWith("http") ? neko.Image : "любое";
+		desc = neko.Description;
+		specKeys = neko.Specifications.Select(s => s.Key).ToList();
+		specValues = neko.Specifications.Select(s => s.Value).ToList();
+
+		images = new List<string>();
+		blobs = new List<byte[]>();
+
+		foreach (string img in neko.Photos)
+		{
+			if (img.StartsWith("http"))
+				images.Add(img);
+			else
+				blobs.Add(Convert.FromBase64String(string.Join("", img.Split(',').Skip(1))));
+		}
+	}
+
+	private void DeleteSpec(int id)
+	{
+		specKeys!.RemoveAt(id);
+		specValues!.RemoveAt(id);
+	}
+
+	private void AddSpec(int id)
+	{
+		if (id == specKeys!.Count)
+		{
+			specKeys.Add("");
+			specValues!.Add("");
+		}
+		else
+		{
+			string[] after = specKeys.Skip(id + 1).Take(specKeys.Count - id - 1).ToArray();
+			specKeys = specKeys.Take(id + 1).ToList();
+			specKeys.Add("");
+			specKeys.AddRange(after);
+
+			after = specValues!.Skip(id + 1).Take(specValues!.Count - id - 1).ToArray();
+			specValues = specValues.Take(id + 1).ToList();
+			specValues.Add("");
+			specValues.AddRange(after);
+		}
+	}
+
+	private void UpSpec(int id)
+	{
+		if (specKeys!.Count == 1)
+			return;
+		if (id == 0)
+		{
+			string downKey = specKeys![^1];
+			string downValue = specValues![^1];
+			specKeys![^1] = specKeys[0];
+			specValues![^1] = specValues[0];
+			specKeys[0] = downKey;
+			specValues[0] = downValue;
+			return;
+		}
+		string downedKey = specKeys![id - 1];
+		string downedValue = specValues![id - 1];
+		specKeys![id - 1] = specKeys[id];
+		specValues![id - 1] = specValues[id];
+		specKeys[id] = downedKey;
+		specValues[id] = downedValue;
+	}
+
+	private void DownSpec(int id)
+	{
+		if (specKeys!.Count == 1)
+			return;
+		if (id == specKeys!.Count - 1)
+		{
+			string downKey = specKeys![0];
+			string downValue = specValues![0];
+			specKeys![0] = specKeys[^1];
+			specValues![0] = specValues[^1];
+			specKeys[^1] = downKey;
+			specValues[^1] = downValue;
+			return;
+		}
+		string downedKey = specKeys![id + 1];
+		string downedValue = specValues![id + 1];
+		specKeys![id + 1] = specKeys[id];
+		specValues![id + 1] = specValues[id];
+		specKeys[id] = downedKey;
+		specValues[id] = downedValue;
+	}
+
+	private void DeleteImg(int id)
+	{
+		images!.RemoveAt(id);
+	}
+
+	private void AddImg(int id)
+	{
+		if (id == images!.Count)
+		{
+			images.Add("");
+		}
+		else
+		{
+			string[] after = images.Skip(id + 1).Take(images.Count - id - 1).ToArray();
+			images = images.Take(id + 1).ToList();
+			images.Add("");
+			images.AddRange(after);
+		}
+	}
+
+	private void UpImg(int id)
+	{
+		if (images!.Count == 1)
+			return;
+		if (id == 0)
+		{
+			string down = images![^1];
+			images![^1] = images[0];
+			images[0] = down;
+			return;
+		}
+		string downed = images![id - 1];
+		images![id - 1] = images[id];
+		images[id] = downed;
+	}
+
+	private void DownImg(int id)
+	{
+		if (images!.Count == 1)
+			return;
+		if (id == images!.Count - 1)
+		{
+			string up = images![0];
+			images![0] = images[^1];
+			images[^1] = up;
+			return;
+		}
+		string upped = images![id + 1];
+		images![id + 1] = images[id];
+		images[id] = upped;
+	}
+
+	private void UpBlob(int id)
+	{
+		if (blobs!.Count == 1)
+			return;
+		if (id == 0)
+		{
+			byte[] down = blobs![^1];
+			blobs![^1] = blobs[0];
+			blobs[0] = down;
+			return;
+		}
+		byte[] downed = blobs![id - 1];
+		blobs![id - 1] = blobs[id];
+		blobs[id] = downed;
+	}
+
+	private void DownBlob(int id)
+	{
+		if (blobs!.Count == 1)
+			return;
+		if (id == blobs!.Count - 1)
+		{
+			byte[] up = blobs![0];
+			blobs![0] = blobs[^1];
+			blobs[^1] = up;
+			return;
+		}
+		byte[] upped = blobs![id + 1];
+		blobs![id + 1] = blobs[id];
+		blobs[id] = upped;
+	}
+
+	private void DeleteBlob(int id)
+	{
+		blobs!.RemoveAt(id);
+	}
+
+	private void AddBlob(int id)
+	{
+		if (id == blobs!.Count)
+		{
+			blobs.Add([]);
+		}
+		else
+		{
+			List<byte[]> after = blobs.Skip(id + 1).Take(blobs.Count - id - 1).ToList();
+			blobs = blobs.Take(id + 1).ToList();
+			blobs.Add([]);
+			blobs.AddRange(after);
+		}
+	}
+
+	private void CraftNeko()
+	{
+		if (name == "")
+			return;
+		// simple
+		neko!.Name = name!;
+		neko.Price = Convert.ToDecimal(price ?? 0);
+		neko.Description = desc!;
+		// image
+		neko.Image = image!;
+		// specs
+		neko.Specifications = Enumerable.Range(0, specKeys!.Count).
+			Where(e => !specKeys[e].All(c => char.IsWhiteSpace(c) && !specValues![e].All(c => char.IsWhiteSpace(c)))).
+			Select(e => new KeyValuePair<string, string>(specKeys[e], specValues![e])).
+			ToDictionary(kv => kv.Key, kv => kv.Value);
+		// photos
+		images!.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
+		neko.Photos = images.Where(i => i != "" && i != "data:image/octet-stream;base64,").ToArray();
+
+		createClient.Neko = neko;
+	}
+
+	private async Task HandleFileUpload(InputFileChangeEventArgs e)
+	{
+		var file = e.File;
+
+		var stream = file.OpenReadStream();
+		var memoryStream = new MemoryStream();
+		await stream.CopyToAsync(memoryStream);
+
+		byte[] fileBytes = memoryStream.ToArray() ?? [];
+
+		int i = blobs!.IndexOf([]);
+		blobs[i] = fileBytes;
+	}
+
+	private async void Sell()
+	{
+		HttpClient client = new HttpClient();
+		HttpResponseMessage response = new HttpResponseMessage();
+		CraftNeko();
+
+		string[] urls = new string[]
+		{
+			"https://localhost:7778/Neko/AddNeko",
+			"http://localhost:5555/Neko/AddNeko",
+			"http://localhost:5000/Neko/AddNeko"
+		};
+
+		foreach (string url in urls)
+		{
+			try
+			{
+				response = await client.PostAsJsonAsync(url, neko);
+				break;
+			}
+			catch { /* continue */ }
+		}
+
+		if (response.IsSuccessStatusCode && (JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync()) ?? "") == "УДАЧНО ОБНОВЛЕННО")
+		{
+			nekoClient.EraseGotten();
+			await jsRun.InvokeVoidAsync("alert", "ПРОДАЖА ПРОШЛА УДАЧНО");
+			createClient.Neko = new()
+				{
+					Id = -1,
+					Name = "",
+					Image = "любое",
+					Price = 0m,
+					Description = "",
+					Photos = [],
+					Specifications = []
+				};
+		}
+		else
+			await jsRun.InvokeVoidAsync("alert", "НЕ УДАЛАСЬ ПОПЫТКА ПРОДАЖИ ТОВАРА");
+	}
 }

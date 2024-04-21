@@ -60,7 +60,9 @@ namespace NekoSiteTest.Clients
 
         public NekoPost[] GetNekos() => [.. Posts];
 
-		public void SetPosts(List<NekoPost> posts) => Posts = posts;
+		public void EraseGotten() => GottenPosts = null;
+
+		public void SetPosts(List<NekoPost> posts) => Posts = posts.Where(p => !Cart.Any(c => c.Id == p.Id)).ToList();
 
         public void AddPost(NekoPost post) => Posts.Add(post);
 

@@ -47,8 +47,12 @@ else
 			<div style="display: flex;">
 				<InputText id="@specKeys[index]" @bind-Value="specKeys[index]" class="form-control mb-1"></InputText>
 				<InputText id="@specValues![index]" @bind-Value="specValues![index]" class="form-control mb-1"></InputText>
-				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteSpec(index)">-</button>
-				<button style="width: 5vw; font-size: 3vh; height: 5vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddSpec(index)">+</button>
+				<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteSpec(index)">-</button>
+				<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddSpec(index)">+</button>
+				<div>
+					<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control" @onclick="()=>UpSpec(index)">↑</button>
+					<button style="width: 5vw; font-size: 2vh; height: 3vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DownSpec(index)">↓</button>
+				</div>
 			</div>
 		}
 	</div>
@@ -82,7 +86,7 @@ else
 		{
 			int ib = i;
 			<div style="display: flex;">
-				<InputFile id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1" OnChange="HandleFileUpload"></InputFile>
+				<InputFile style="font-size: 3vh" id="@blobs![ib]" @bind-Value="blobs[ib]" class="form-control mb-1" OnChange="HandleFileUpload"></InputFile>
 				<img style="width: 5vw; height: 6vh; object-fit: contain" class="form-control mb-1" src="data:image/octet-stream;base64,@Convert.ToBase64String(blobs[ib])" />
 				<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>DeleteBlob(ib)">-</button>
 				<button style="width: 5vw; font-size: 3vh; height: 6vh; line-height: 1vh" class="form-control mb-1" @onclick="()=>AddBlob(ib)">+</button>
@@ -174,6 +178,50 @@ else
 			specValues.Add("");
 			specValues.AddRange(after);
 		}
+	}
+
+	private void UpSpec(int id)
+	{
+		if (specKeys!.Count == 1)
+			return;
+		if (id == 0)
+		{
+			string downKey = specKeys![^1];
+			string downValue = specValues![^1];
+			specKeys![^1] = specKeys[0];
+			specValues![^1] = specValues[0];
+			specKeys[0] = downKey;
+			specValues[0] = downValue;
+			return;
+		}
+		string downedKey = specKeys![id - 1];
+		string downedValue = specValues![id - 1];
+		specKeys![id - 1] = specKeys[id];
+		specValues![id - 1] = specValues[id];
+		specKeys[id] = downedKey;
+		specValues[id] = downedValue;
+	}
+
+	private void DownSpec(int id)
+	{
+		if (specKeys!.Count == 1)
+			return;
+		if (id == specKeys!.Count - 1)
+		{
+			string downKey = specKeys![0];
+			string downValue = specValues![0];
+			specKeys![0] = specKeys[^1];
+			specValues![0] = specValues[^1];
+			specKeys[^1] = downKey;
+			specValues[^1] = downValue;
+			return;
+		}
+		string downedKey = specKeys![id + 1];
+		string downedValue = specValues![id + 1];
+		specKeys![id + 1] = specKeys[id];
+		specValues![id + 1] = specValues[id];
+		specKeys[id] = downedKey;
+		specValues[id] = downedValue;
 	}
 
 	private void DeleteImg(int id)
@@ -340,7 +388,7 @@ else
 		if (response.IsSuccessStatusCode && (JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync()) ?? "") == "УДАЧНО ОБНОВЛЕННО")
 		{
 			if (neko!.Image.Trim().ToLower() == "любое")
-				neko.Image = blobs!.Count == 0 ? neko.Image : $"data:image/octet-stream;base64,{Convert.ToBase64String(blobs[0])}";
+				neko.Image = neko.Photos.Length == 0 ? "любое" : neko.Photos[0];
 			nekoClient.ReplaceNeko(neko!);
 			await jsRun.InvokeVoidAsync("alert", "ИЗМЕНЕНИЕ ПРОШЛО УДАЧНО");
 			//nav.NavigateTo("/");

@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.JSInterop;
 using NekoSiteTest.Clients;
 using NekoSiteTest.Components;
 
@@ -11,6 +9,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<NekoClient>();
 builder.Services.AddSingleton<WalletClient>();
+builder.Services.AddSingleton<CreateClient>();
 
 var app = builder.Build();
 

@@ -4,9 +4,11 @@ namespace NekoSiteTest.Clients
 {
     public class NekoClient
     {
+		public string UrlWas = "nekolog";
+
 		public List<NekoPost>? GottenPosts = null;
-		private List<NekoPost> Posts = new List<NekoPost>()
-		{
+		private List<NekoPost> Posts = 
+		[
 			new()
 			{
 				Id = 0,
@@ -56,7 +58,7 @@ namespace NekoSiteTest.Clients
 					"/Images/pfelis/pf4.png",
 					]
 			},
-		};
+		];
 
         public NekoPost[] GetNekos() => [.. Posts];
 
@@ -79,7 +81,7 @@ namespace NekoSiteTest.Clients
 		}
 
 		// Cart
-		public List<NekoPost> Cart = new List<NekoPost>();
+		public List<NekoPost> Cart = [];
 
 		public void AddToCart(NekoPost post) => Cart.Add(post);
 
@@ -88,7 +90,7 @@ namespace NekoSiteTest.Clients
 		public void DeleteCart(int id) => Cart.Remove(Cart.Single(p => p.Id == id));
 
 		// Liked
-		public List<NekoPost> Liked = new List<NekoPost>();
+		public List<NekoPost> Liked = [];
 
 		public void AddToLiked(NekoPost post) => Liked.Add(post);
 

@@ -1,6 +1,7 @@
 ﻿@page "/liked"
 
 @inject NekoClient nekoClient
+@inject NavigationManager nav
 @rendermode InteractiveServer
 
 <PageTitle>Избранное</PageTitle>
@@ -16,11 +17,13 @@ else
 		@foreach (NekoPost nekoPost in nekoPosts)
 		{
 			<div class="card mb-4 box-shadow" style="display: flex; flex-direction: column; width: 40vh;">
-				<img style="width: 40vh; height: 40vh; object-fit:contain" class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
-				<a style="margin: 1vh; font-size: 3vh; text-decoration: none;" class="link-info card-body" href="/nekopage/@nekoPost.Id">@nekoPost.Name</a>
+				<a @onclick="()=>NavTo(nekoPost.Id)">
+					<img style="width: 40vh; height: 40vh; object-fit:contain" class="card-img-top" src="@nekoPost.Image" alt="ЭЭЭЭЭЭЭЭЭЭЭ" />
+				</a>
+				<a style="margin: 1vh; font-size: 3vh; text-decoration: none;" class="link-info card-body" @onclick="()=>NavTo(nekoPost.Id)">@nekoPost.Name</a>
 				<div style="display: flex; justify-content: space-between" class="card-footer">
 					<h5 style="margin: 1vh" class="text">@nekoPost.Price₽</h5>
-					<button style="margin: 1vh" @onclick="()=>AddCart(nekoPost)">@(nekoClient.GetLiked().Any(n => n.Id == nekoPost.Id) ? "❤️" : "🤍")</button>
+					<button style="margin: 1vh" class="btn btn-outline-secondary" @onclick="()=>AddCart(nekoPost)">@(nekoClient.GetLiked().Any(n => n.Id == nekoPost.Id) ? "❤️" : "🤍")</button>
 				</div>
 			</div>
 		}
@@ -39,5 +42,11 @@ else
 	{
 		nekoClient.DeleteLiked(neko.Id);
 		nekoPosts = nekoPosts.Where(n => n.Id != neko.Id).ToArray();
+	}
+
+	private void NavTo(int id)
+	{
+		nekoClient.UrlWas = "liked";
+		nav.NavigateTo("/nekopage/" + id);
 	}
 }

@@ -27,7 +27,7 @@
 
 <div class="mb-3">
 	<label for="desc" class="form-label">Описание</label>
-	<InputText id="desc" @bind-Value="desc" class="form-control"></InputText>
+	<InputTextArea id="desc" @bind-Value="desc" class="form-control"></InputTextArea>
 </div>
 
 <div class="mb-3">
@@ -105,6 +105,7 @@
 	private decimal? price { get; set; }
 	private string? desc { get; set; }
 	private List<string>? specKeys { get; set; }
+	private List<string>? photos { get; set; }
 	private List<string>? specValues { get; set; }
 	private List<string>? images { get; set; }
 	private List<byte[]>? blobs { get; set; }
@@ -323,8 +324,9 @@
 			Select(e => new KeyValuePair<string, string>(specKeys[e], specValues![e])).
 			ToDictionary(kv => kv.Key, kv => kv.Value);
 		// photos
-		images!.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
-		neko.Photos = images.Where(i => i != "" && i != "data:image/octet-stream;base64,").ToArray();
+		photos = [.. images];
+		photos!.AddRange(blobs!.Select(b => $"data:image/octet-stream;base64,{Convert.ToBase64String(b)}"));
+		neko.Photos = photos.Where(i => i != "" && i != "data:image/octet-stream;base64,").ToArray();
 
 		createClient.Neko = neko;
 	}

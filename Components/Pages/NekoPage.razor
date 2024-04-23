@@ -5,7 +5,6 @@
 @inject NavigationManager nav
 @inject WalletClient walletClient
 
-
 <PageTitle>Подробности</PageTitle>
 
 @if (nekoPost is null)
@@ -28,14 +27,14 @@ else
 					<a  
 						style="height: 12vh; width: 20vw; margin: 1vh; margin-left: 4vw; font-size: 4vh; line-height: 10vh;"
 					    class="btn btn-outline-secondary" 
-						href="/">Назад</a>
+						@onclick="()=>NavTo(nekoPost.Id)">Назад</a>
 					<a 
 						style="height: 12vh; width: 20vw; margin: 1vh; margin-left: 4vw; font-size: 4vh; line-height: 10vh;"
 					    class="btn btn-outline-secondary" 
-						href="/nekopage/@(nekoClient.GetNekos().Length <= nekoPost.Id + 1 ? 0 : nekoPost.Id + 1)">Следом</a>
+						href="/nekopage/@NextId(nekoPost.Id)">Следом</a>
 				</div>
 			</div>
-			<strong class="text-primary" style="margin: 2vh">@nekoPost.Name</strong>
+			<h3 class="text-primary" style="margin: 2vh">@nekoPost.Name</h3>
 		</div>
 
 		<div class="card-body">
@@ -53,7 +52,16 @@ else
 			<div class="photo-scroll-content">
 				@foreach (string photo in nekoPost.Photos)
 				{
-					<img src="@photo" alt="ЭЭЭЭЭ" style="height: 25vh;">
+					@if (photo.StartsWith("http"))
+					{
+						<a href="@photo">
+							<img src="@photo" alt="ЭЭЭЭЭ" style="height: 25vh; margin: 0.5vw">
+						</a>
+					}
+					else
+					{
+						<img src="@photo" alt="ЭЭЭЭЭ" style="height: 25vh; margin: 0.5vw">
+					}
 				}
 			</div>
 		</div>
@@ -66,17 +74,54 @@ else
 	public required string pageId { get; set; }
 
 	private NekoPost? nekoPost = null;
+	private NekoPost[]? nekos = null;
 
 	protected override void OnInitialized()
 	{
-		nekoPost = nekoClient.GetNekos().FirstOrDefault(n => n.Id == Convert.ToInt32(pageId));
+		switch (nekoClient.UrlWas)
+		{
+			case "cart":
+				nekos = nekoClient.GetCart(); break;
+			case "liked":
+				nekos = nekoClient.GetLiked(); break;
+			default:
+				nekos = nekoClient.GetNekos(); break;
+		}
+		nekoPost = nekos.FirstOrDefault(n => n.Id == Convert.ToInt32(pageId));
+	}
+
+	private int NextId(int id)
+	{
+		if (nekos!.Length == 1)
+			return id;
+		if (nekos.Last().Id == id)
+			return nekos[0].Id;
+		if (id == nekos[0].Id)
+			return nekos[1].Id;
+		return (nekos!.SkipWhile(n => n.Id != nekoPost!.Id).Skip(1).ToArray().ElementAtOrDefault(0) ?? nekos[0]).Id;
 	}
 
 	private void Buy() 
 	{
 		walletClient.Account -= nekoPost!.Price;
-		nekoClient.AddToCart(nekoPost);
-		nekoClient.DeletePost(nekoPost!.Id);
-		nav.NavigateTo("/");
+		if (!nekoClient.GetCart().Any(c => c.Id == nekoPost!.Id))
+		{
+			nekoClient.AddToCart(nekoPost);
+			nekoClient.DeletePost(nekoPost!.Id);
+		}
+		NavTo(nekoPost.Id);
+	}
+
+	private void NavTo(int id)
+	{
+		switch (nekoClient.UrlWas)
+		{
+			case "cart":
+				nav.NavigateTo("/cart"); break;
+			case "liked":
+				nav.NavigateTo("/liked"); break;
+			default:
+				nav.NavigateTo("/"); break;
+		}
 	}
 }

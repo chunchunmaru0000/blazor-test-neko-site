@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2298146ee7d7019f3fe6caec9b34b91eed4cf3ba")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+102b644811d442ba3f8c589b185c67098b361bed")]
 [assembly: System.Reflection.AssemblyProductAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -4,6 +4,7 @@
 @using System.Text.Json
 @inject CreateClient createClient
 @inject NekoClient nekoClient
+@inject WalletClient walletClient
 @inject NavigationManager nav
 @inject IJSRuntime jsRun
 
@@ -368,6 +369,7 @@
 		if (response.IsSuccessStatusCode && (JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync()) ?? "") == "УДАЧНО ОБНОВЛЕННО")
 		{
 			nekoClient.EraseGotten();
+			walletClient.Account += neko!.Price; 
 			await jsRun.InvokeVoidAsync("alert", "ПРОДАЖА ПРОШЛА УДАЧНО");
 			createClient.Neko = new()
 				{

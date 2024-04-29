@@ -42,29 +42,33 @@ else
 
 			string[] urls = new string[] 
 			{
+				"http://localhost:5556/neko/neko_get.php",
 				"https://localhost:7778/Neko/GetNekos",
 				"http://localhost:5555/Neko/GetNekos",
-				"http://localhost:5000/Neko/GetNekos"
+				"http://localhost:5000/Neko/GetNekos",
 			};
 
 			foreach(string url in urls)
 			{
 				try
 				{
+					Console.WriteLine("\n" + url + "\n");
 					response = await client.GetAsync(url);
-
-					if (response.IsSuccessStatusCode)
+					Console.WriteLine($"{((int)response.StatusCode)} код");
+					if ((int)response.StatusCode == 200 || response.IsSuccessStatusCode)
 					{
 						string jsonRes = await response.Content.ReadAsStringAsync();
 						nekoClient.GottenPosts = JsonSerializer.Deserialize<List<NekoPost>>(jsonRes) ?? new List<NekoPost>();
 						nekoClient.SetPosts(nekoClient.GottenPosts);
+						Console.WriteLine(url + " был выбран");
 						break;
 					}
 				}
-				catch { /* continue */ }
+				catch {/* (Exception e) { continue  Console.WriteLine(e);*/ }
 			}
 		}
 		nekoPosts = nekoClient.GetNekos();
+		Console.WriteLine(string.Join(" ", nekoPosts.Select(n => n.Id.ToString())));
 	}
 
 	private void AddCart(NekoPost neko)

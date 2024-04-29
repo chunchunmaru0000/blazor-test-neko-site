@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eba4e57ca265ce9081b766d17fdd3c6262b323e2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bbe713ef73c51d96dc4edaeb7dffe686d44b9a2e")]
 [assembly: System.Reflection.AssemblyProductAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NekoSiteTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

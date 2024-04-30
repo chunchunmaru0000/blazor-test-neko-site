@@ -1,3 +1,10 @@
+:root {
+    --bg-color-light: #fff;
+    --text-color-light: #333;
+    --bg-color-dark: #333;
+    --text-color-dark: #fff;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

@@ -368,7 +368,9 @@
 			}
 			catch { /* continue */ }
 		}
-
+		Console.WriteLine(response);
+		Console.WriteLine(await response.Content.ReadAsStringAsync());
+		Console.WriteLine("\n\n\n");
 		if (response.IsSuccessStatusCode && (JsonSerializer.Deserialize<string>(await response.Content.ReadAsStringAsync()) ?? "") == "УДАЧНО ОБНОВЛЕННО")
 		{
 			nekoClient.EraseGotten();
